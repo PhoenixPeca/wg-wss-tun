@@ -5,6 +5,7 @@ services:
     image: ghcr.io/erebe/wstunnel:latest
     container_name: wstunnel-client
     command:
+      - "wstunnel"
       - "--udpForward"
       - "0.0.0.0:${LOCAL_WG_PORT:-51820}"
       - "wss://${WSS_DOMAIN}:${WSS_PORT:-443}"
