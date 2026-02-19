@@ -8,7 +8,7 @@ services:
       - "/home/app/wstunnel"
       - "client"
       - "--local-to-remote"
-      - "udp://0.0.0.0:${LOCAL_WG_PORT:-51820}:wireguard:51820?timeout_sec=${WSS_UDP_TIMEOUT:-30}"
+      - "udp://0.0.0.0:${LOCAL_WG_PORT:-51820}:wg-easy:51820?timeout_sec=${WSS_UDP_TIMEOUT:-30}"
       - "--log-lvl"
       - "${WST_LOG_LEVEL:-INFO}"
       - "wss://${WSS_DOMAIN}:${WSS_PORT:-443}"
