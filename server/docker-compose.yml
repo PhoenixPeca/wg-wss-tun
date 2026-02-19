@@ -1,0 +1,76 @@
+version: "3.8"
+
+services:
+  certgen:
+    image: alpine:3.19
+    container_name: wstunnel-certgen
+    command: >-
+      sh -c "apk add --no-cache openssl >/dev/null \
+      && mkdir -p /certs \
+      && if [ ! -f /certs/fullchain.pem ] || [ ! -f /certs/privkey.pem ]; then \
+           openssl req -newkey rsa:2048 -nodes -keyout /certs/privkey.pem -x509 -days ${WSS_SELF_SIGNED_DAYS:-365} -out /certs/fullchain.pem -subj \"/CN=${WSS_DOMAIN:-example.com}\"; \
+         else \
+           echo 'Certs already exist, skipping'; \
+         fi"
+    volumes:
+      - ./certs:/certs
+    environment:
+      - WSS_DOMAIN=${WSS_DOMAIN:-example.com}
+      - WSS_SELF_SIGNED_DAYS=${WSS_SELF_SIGNED_DAYS:-365}
+    restart: "no"
+
+  wireguard:
+    image: linuxserver/wireguard:latest
+    container_name: wireguard
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ:-UTC}
+      - SERVERURL=${WG_SERVER_URL:-wg.internal}
+      - SERVERPORT=51820
+      - PEERS=${WG_PEERS:-1}
+      - PEERDNS=${WG_PEER_DNS:-1.1.1.1}
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    volumes:
+      - ./config:/config
+      - /lib/modules:/lib/modules:ro
+    restart: unless-stopped
+    networks:
+      - wg-backend
+
+  wstunnel:
+    image: erebe/wstunnel:latest
+    container_name: wstunnel-server
+    depends_on:
+      wireguard:
+        condition: service_started
+      certgen:
+        condition: service_completed_successfully
+    command:
+      - "--server"
+      - "wss://0.0.0.0:${WSS_PORT:-443}"
+      - "--udpForward"
+      - "wireguard:51820"
+      - "--tlsCertFile"
+      - "/certs/fullchain.pem"
+      - "--tlsKeyFile"
+      - "/certs/privkey.pem"
+      - "--udpTimeoutSec"
+      - "${WSS_UDP_TIMEOUT:-30}"
+      - "--logLevel"
+      - "${WST_LOG_LEVEL:-info}"
+    ports:
+      - "${WSS_PORT:-443}:${WSS_PORT:-443}"
+    volumes:
+      - ./certs:/certs:ro
+    restart: unless-stopped
+    networks:
+      - wg-backend
+
+networks:
+  wg-backend:
+    driver: bridge
