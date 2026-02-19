@@ -13,11 +13,16 @@ Two Docker Compose projects:
 ## Server setup
 1. TLS: a self-signed cert is generated automatically on first `docker compose up` using `WSS_DOMAIN` and `WSS_SELF_SIGNED_DAYS` from your env. To supply your own cert instead, drop `fullchain.pem` and `privkey.pem` in [server/certs](server/certs).
 2. Copy [server/.env.example](server/.env.example) to `server/.env` and adjust values:
-   - `WG_HOST` should be set to the address clients will use (typically the client rebroadcast host/IP).
-   - `WG_PORT` should match the WireGuard UDP port you expose via the client rebroadcast (default 51820).
-   - `WG_PASSWORD` secures the wg-easy admin UI (exposed on port 4433 externally).
-   - `WSS_DOMAIN` sets the CN/SNI used for the generated cert (or must match the cert you provide).
-   - `WSS_PORT` set to 443 (or another external port you map).
+    - `WG_HOST` should be set to the address clients will use (typically the client rebroadcast host/IP).
+    - `WG_PORT` should match the WireGuard UDP port you expose via the client rebroadcast (default 51820).
+    - `WG_PASSWORD_HASH` secures the wg-easy admin UI (exposed on port 4433 externally). Generate with:
+       ```bash
+       docker run --rm ghcr.io/wg-easy/wg-easy:latest \
+          sh -c "node -e \"console.log(require('bcryptjs').hashSync(process.argv[1], 10))\" '$YOUR_PASSWORD'"
+       ```
+       Paste the output into `WG_PASSWORD_HASH=`.
+    - `WSS_DOMAIN` sets the CN/SNI used for the generated cert (or must match the cert you provide).
+    - `WSS_PORT` set to 443 (or another external port you map).
 3. Bring up the server stack:
    ```bash
    cd server
