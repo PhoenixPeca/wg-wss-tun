@@ -6,13 +6,12 @@ services:
     container_name: wstunnel-client
     command:
       - "/home/app/wstunnel"
-      - "--udpForward"
-      - "0.0.0.0:${LOCAL_WG_PORT:-51820}"
+      - "client"
+      - "--local-to-remote"
+      - "udp://0.0.0.0:${LOCAL_WG_PORT:-51820}:wireguard:51820?timeout_sec=${WSS_UDP_TIMEOUT:-30}"
+      - "--log-lvl"
+      - "${WST_LOG_LEVEL:-INFO}"
       - "wss://${WSS_DOMAIN}:${WSS_PORT:-443}"
-      - "--udpTimeoutSec"
-      - "${WSS_UDP_TIMEOUT:-30}"
-      - "--logLevel"
-      - "${WST_LOG_LEVEL:-info}"
     ports:
       - "${LOCAL_WG_PORT:-51820}:${LOCAL_WG_PORT:-51820}/udp"
     restart: unless-stopped

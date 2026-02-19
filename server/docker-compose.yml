@@ -52,18 +52,14 @@ services:
         condition: service_completed_successfully
     command:
       - "/home/app/wstunnel"
-      - "--server"
+      - "server"
       - "wss://0.0.0.0:${WSS_PORT:-443}"
-      - "--udpForward"
-      - "wireguard:51820"
-      - "--tlsCertFile"
+      - "--tls-certificate"
       - "/certs/fullchain.pem"
-      - "--tlsKeyFile"
+      - "--tls-private-key"
       - "/certs/privkey.pem"
-      - "--udpTimeoutSec"
-      - "${WSS_UDP_TIMEOUT:-30}"
-      - "--logLevel"
-      - "${WST_LOG_LEVEL:-info}"
+      - "--log-lvl"
+      - "${WST_LOG_LEVEL:-INFO}"
     ports:
       - "${WSS_PORT:-443}:${WSS_PORT:-443}"
     volumes:
