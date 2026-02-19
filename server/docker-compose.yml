@@ -11,7 +11,8 @@ services:
            openssl req -newkey rsa:2048 -nodes -keyout /certs/privkey.pem -x509 -days ${WSS_SELF_SIGNED_DAYS:-365} -out /certs/fullchain.pem -subj \"/CN=${WSS_DOMAIN:-example.com}\"; \
          else \
            echo 'Certs already exist, skipping'; \
-         fi"
+         fi \
+      && chmod 644 /certs/fullchain.pem /certs/privkey.pem"
     volumes:
       - ./certs:/certs
     environment:

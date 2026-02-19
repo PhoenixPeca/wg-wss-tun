@@ -1,0 +1,19 @@
+# OS junk
+.DS_Store
+
+# Env files
+.env
+*.env
+
+# Python/Node editor
+.vscode/
+
+# Docker artifacts
+**/.docker-compose.override.yml
+
+# WireGuard / wg-easy generated configs and certs
+server/config/
+server/certs/
+
+# Logs
+*.log
