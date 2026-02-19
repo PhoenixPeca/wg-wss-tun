@@ -38,7 +38,9 @@ services:
       - /lib/modules:/lib/modules:ro
     restart: unless-stopped
     networks:
-      - wg-backend
+      wg-backend:
+        aliases:
+          - wireguard
     ports:
       - "4433:51821"
 
