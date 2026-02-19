@@ -19,34 +19,34 @@ services:
       - WSS_SELF_SIGNED_DAYS=${WSS_SELF_SIGNED_DAYS:-365}
     restart: "no"
 
-  wireguard:
-    image: linuxserver/wireguard:latest
-    container_name: wireguard
+  wg-easy:
+    image: ghcr.io/wg-easy/wg-easy:latest
+    container_name: wg-easy
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
     environment:
-      - PUID=1000
-      - PGID=1000
       - TZ=${TZ:-UTC}
-      - SERVERURL=${WG_SERVER_URL:-wg.internal}
-      - SERVERPORT=51820
-      - PEERS=${WG_PEERS:-1}
-      - PEERDNS=${WG_PEER_DNS:-1.1.1.1}
+      - WG_HOST=${WG_HOST:-wg.internal}
+      - WG_PORT=${WG_PORT:-51820}
+      - PASSWORD=${WG_PASSWORD:-change-me}
+      - WG_DEFAULT_DNS=${WG_DEFAULT_DNS:-1.1.1.1}
     sysctls:
       - net.ipv4.conf.all.src_valid_mark=1
     volumes:
-      - ./config:/config
+      - ./config:/etc/wireguard
       - /lib/modules:/lib/modules:ro
     restart: unless-stopped
     networks:
       - wg-backend
+    ports:
+      - "4433:51821"
 
   wstunnel:
     image: ghcr.io/erebe/wstunnel:latest
     container_name: wstunnel-server
     depends_on:
-      wireguard:
+      wg-easy:
         condition: service_started
       certgen:
         condition: service_completed_successfully

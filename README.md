@@ -7,12 +7,15 @@ Two Docker Compose projects:
 ## How it works
 - WireGuard listens on UDP/51820 inside the server network (not published).
 - `wstunnel` (image `ghcr.io/erebe/wstunnel:latest`) serves `wss://<domain>:443` and forwards UDP traffic to WireGuard.
+- `wg-easy` (image `ghcr.io/wg-easy/wg-easy:latest`) manages WireGuard and exposes its admin UI on port 4433.
 - On the client, `wstunnel` dials `wss://<domain>` and exposes local UDP/51820. Devices near the client point their WireGuard configs to the client host and port.
 
 ## Server setup
 1. TLS: a self-signed cert is generated automatically on first `docker compose up` using `WSS_DOMAIN` and `WSS_SELF_SIGNED_DAYS` from your env. To supply your own cert instead, drop `fullchain.pem` and `privkey.pem` in [server/certs](server/certs).
 2. Copy [server/.env.example](server/.env.example) to `server/.env` and adjust values:
-   - `WG_SERVER_URL` is only used to pre-fill peer configs; peers will later be pointed at the client rebroadcast endpoint.
+   - `WG_HOST` should be set to the address clients will use (typically the client rebroadcast host/IP).
+   - `WG_PORT` should match the WireGuard UDP port you expose via the client rebroadcast (default 51820).
+   - `WG_PASSWORD` secures the wg-easy admin UI (exposed on port 4433 externally).
    - `WSS_DOMAIN` sets the CN/SNI used for the generated cert (or must match the cert you provide).
    - `WSS_PORT` set to 443 (or another external port you map).
 3. Bring up the server stack:
@@ -22,11 +25,8 @@ Two Docker Compose projects:
    ```
 
 ### Adding VPN profiles (peers)
-- Helper scripts (run from the `server` dir):
-   - Add: `./bin/add-peer.sh alice`
-   - List: `./bin/list-peers.sh`
-   - Show config: `./bin/get-peer-config.sh alice`
-- Peer configs live under [server/config](server/config) (with QR codes). Edit the `Endpoint =` line to the client rebroadcast address (e.g., `Endpoint = 192.168.1.10:51820`) before distributing.
+- Use the wg-easy web UI at `https://<server-host>:4433` (password `WG_PASSWORD`).
+- Add peers and download configs/QRs from the UI. If needed, edit the `Endpoint =` line in the downloaded config to the client rebroadcast address (e.g., `Endpoint = 192.168.1.10:51820`).
 
 ## Client setup
 1. Copy `client/.env.example` to `client/.env` and set:
