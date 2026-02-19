@@ -5,14 +5,12 @@ services:
     image: alpine:3.19
     container_name: wstunnel-certgen
     command: >-
-      sh -c "apk add --no-cache openssl >/dev/null \
-      && mkdir -p /certs \
-      && if [ ! -f /certs/fullchain.pem ] || [ ! -f /certs/privkey.pem ]; then \
-           openssl req -newkey rsa:2048 -nodes -keyout /certs/privkey.pem -x509 -days ${WSS_SELF_SIGNED_DAYS:-365} -out /certs/fullchain.pem -subj \"/CN=${WSS_DOMAIN:-example.com}\"; \
-         else \
-           echo 'Certs already exist, skipping'; \
-         fi \
-      && chmod 644 /certs/fullchain.pem /certs/privkey.pem"
+      sh -c "apk add --no-cache openssl >/dev/null && \
+      mkdir -p /certs && \
+      if [ ! -f /certs/fullchain.pem ] || [ ! -f /certs/privkey.pem ]; then \
+        openssl req -newkey rsa:2048 -nodes -keyout /certs/privkey.pem -x509 -days ${WSS_SELF_SIGNED_DAYS:-365} -out /certs/fullchain.pem -subj \"/CN=${WSS_DOMAIN:-example.com}\"; \
+      fi; \
+      chmod 644 /certs/fullchain.pem /certs/privkey.pem"
     volumes:
       - ./certs:/certs
     environment:
