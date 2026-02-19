@@ -6,7 +6,7 @@ Two Docker Compose projects:
 
 ## How it works
 - WireGuard listens on UDP/51820 inside the server network (not published).
-- `wstunnel` serves `wss://<domain>:443` and forwards UDP traffic to WireGuard.
+- `wstunnel` (image `ghcr.io/erebe/wstunnel:latest`) serves `wss://<domain>:443` and forwards UDP traffic to WireGuard.
 - On the client, `wstunnel` dials `wss://<domain>` and exposes local UDP/51820. Devices near the client point their WireGuard configs to the client host and port.
 
 ## Server setup

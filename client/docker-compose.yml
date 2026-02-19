@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   wstunnel-client:
-    image: erebe/wstunnel:latest
+    image: ghcr.io/erebe/wstunnel:latest
     container_name: wstunnel-client
     command:
       - "--udpForward"

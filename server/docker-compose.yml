@@ -43,7 +43,7 @@ services:
       - wg-backend
 
   wstunnel:
-    image: erebe/wstunnel:latest
+    image: ghcr.io/erebe/wstunnel:latest
     container_name: wstunnel-server
     depends_on:
       wireguard:
