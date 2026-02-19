@@ -51,7 +51,7 @@ services:
       certgen:
         condition: service_completed_successfully
     command:
-      - "/usr/local/bin/wstunnel"
+      - "/home/app/wstunnel"
       - "--server"
       - "wss://0.0.0.0:${WSS_PORT:-443}"
       - "--udpForward"
